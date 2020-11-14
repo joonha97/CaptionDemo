@@ -254,8 +254,8 @@ class Form(QtWidgets.QDialog):
         #text = open('file.txt').read()
         self.capText.append("[filename : " + self.player.filename + "]")
         #caption 텍스트 불러와서 저장
-        self.caption
-        self.capText.append("caption : " + self.caption)
+        #self.caption
+        #self.capText.append("caption : " + self.caption)
 
     def evalTextGenerator(self):
         self.evalText.clear()
