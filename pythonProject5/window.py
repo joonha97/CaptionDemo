@@ -9,12 +9,15 @@ from PyQt5.QtCore import pyqtSlot, QFileInfo
 from PyQt5.QtWidgets import *
 import sys
 from player import *
+import csv
+
 
 QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
 
 class Form(QtWidgets.QDialog):
     def __init__(self):
         super().__init__()
+        self.setGeometry(500, 100, 900, 800)###
         self.player = CPlayer(self)
         self.playlist = []
         self.selectedList = [0]
@@ -22,11 +25,6 @@ class Form(QtWidgets.QDialog):
 
         self.setWindowTitle('Audio Korean Caption')
         self.initUI()
-
-    # def __init__(self, parent=None):
-    #     QtWidgets.QDialog.__init__(self, parent)
-    #     self.ui = uic.loadUi("ui.ui", self)
-    #     self.ui.show()
 
     def initUI(self):
 
@@ -101,12 +99,13 @@ class Form(QtWidgets.QDialog):
 
         # 4. Captioning Result (Eng, Kor)
         box = QVBoxLayout()
-        gb = QGroupBox('캡션 생성 결과')
+        gb = QGroupBox('자동 캡션')
         vbox.addWidget(gb)
 
         hbox = QHBoxLayout()
         btnCap = QPushButton('자동 캡션 생성하기')
         self.capText = QTextBrowser(self)
+        self.capText.resize(100,60)
         btnCap.clicked.connect(self.captionGenerator)
         hbox.addWidget(btnCap)
         hbox.addWidget(self.capText)
@@ -117,7 +116,7 @@ class Form(QtWidgets.QDialog):
 
         # 5. Comparing with the Evaluation Text
         box = QVBoxLayout()
-        gb = QGroupBox('실제 캡션')
+        gb = QGroupBox('실제 소리 정보')
         vbox.addWidget(gb)
 
         hbox = QHBoxLayout()
@@ -136,6 +135,14 @@ class Form(QtWidgets.QDialog):
         gb = QGroupBox('정확도')
         vbox.addWidget(gb)
 
+        hbox = QHBoxLayout()
+        btnMet = QPushButton('캡션 정확도 확인하기')
+        self.metText = QTextBrowser(self)
+        btnMet.clicked.connect(self.metTextGenerator)
+        hbox.addWidget(btnMet)
+        hbox.addWidget(self.metText)
+
+        box.addLayout(hbox)
         gb.setLayout(box)
         #6 끝
 
@@ -253,14 +260,58 @@ class Form(QtWidgets.QDialog):
         self.capText.clear()
         #text = open('file.txt').read()
         self.capText.append("[filename : " + self.player.filename + "]")
-        #caption 텍스트 불러와서 저장
-        #self.caption
-        #self.capText.append("caption : " + self.caption)
+        fullname = 'clotho_file_'
+        fullname += self.player.filename
+        print(fullname)
+
+        with open("result2.csv", "r") as file:
+            fileReader = csv.reader(file)
+            for row in fileReader:
+                if (row[0]+'.wav' == fullname):
+                    #print(row[0])
+                    self.capText.append("\n" + row[1])
+            print("search fin")
 
     def evalTextGenerator(self):
         self.evalText.clear()
-        self.evalText.append("Real Info here")
+        #self.evalText.append("Real Info here")
+        self.evalText.append("[filename : " + self.player.filename + "]")
+        fullname = 'clotho_file_'
+        fullname += self.player.filename
+        print(fullname)
 
+        with open("result2.csv", "r") as file:
+            fileReader = csv.reader(file)
+            for row in fileReader:
+                if (row[0]+'.wav' == fullname):
+                    self.evalText.append("caption1: " + row[2])
+                    self.evalText.append("caption2: " + row[3])
+                    self.evalText.append("caption3: " + row[4])
+                    self.evalText.append("caption4: " + row[5])
+                    self.evalText.append("caption5: " + row[6])
+            print("search fin")
+
+    def metTextGenerator(self):
+        self.metText.clear()
+        self.metText.append("[filename : " + self.player.filename + "]")
+        fullname = 'clotho_file_'
+        fullname += self.player.filename
+        print(fullname)
+
+        with open("result2.csv", "r") as file:
+            fileReader = csv.reader(file)
+            for row in fileReader:
+                if (row[0]+'.wav' == fullname):
+                    self.metText.append("bleu_1: " + row[7])
+                    self.metText.append("bleu_2: " + row[8])
+                    self.metText.append("bleu_3: " + row[9])
+                    self.metText.append("bleu_4: " + row[10])
+                    self.metText.append("meteor: " + row[11])
+                    self.metText.append("rouge_l: " + row[12])
+                    self.metText.append("cider: " + row[13])
+                    self.metText.append("spice: " + row[14])
+                    self.metText.append("spider: " + row[15])
+            print("search fin")
 
 if __name__ == '__main__': #main?
     app = QtWidgets.QApplication(sys.argv)
